@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="logo.jpg" alt="হিসাবখাতা লোগো" width="130" style="border-radius: 24px; box-shadow: 0 10px 30px rgba(99, 102, 241, 0.35);" />
+</p>
+
 # 💸 হিসাবখাতা — Smart Expense & Budget Tracker
 
 একটি আধুনিক, দৃষ্টিনন্দন এবং ব্যবহারকারী-বান্ধব **ব্যক্তিগত বাজেট ও খরচ ট্র্যাকার (Personal Expense & Budget Tracker)** ওয়েব অ্যাপ্লিকেশন। ইন্টারনেট ছাড়াই পুরোপুরি অফলাইনে ব্রাউজারে চলবে এবং ব্যবহারকারীর ডেটা ডিভাইসের `LocalStorage`-এ সুরক্ষিত থাকবে।

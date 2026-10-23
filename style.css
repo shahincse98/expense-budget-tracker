@@ -167,6 +167,21 @@ body {
   gap: 0.85rem;
 }
 
+.brand-logo-img {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  box-shadow: 0 4px 14px var(--brand-glow);
+  border: 1px solid var(--border-medium);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.brand-logo-img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+}
+
 .logo-icon {
   width: 42px;
   height: 42px;
