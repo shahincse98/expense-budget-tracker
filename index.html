@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="bn" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ব্যক্তিগত বাজেট ও খরচ ট্র্যাকার — আপনার দৈনন্দিন আয়-ব্যয় হিসাব ও বাজেট পরিচালনার আধুনিক ওয়েব অ্যাপ।">
+  <meta name="keywords" content="ব্যয় ট্র্যাকার, বাজেট, আয়-ব্যয়, Expense Tracker, Budget Tracker, Bengali Finance App">
+  <title>হিসাবখাতা — ব্যক্তিগত বাজেট ও খরচ ট্র্যাকার</title>
+
+  <!-- Google Fonts: Outfit & Inter for high-end typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Chart.js for data visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient background glow elements -->
+  <div class="ambient-glow glow-top-left" aria-hidden="true"></div>
+  <div class="ambient-glow glow-bottom-right" aria-hidden="true"></div>
+
+  <!-- Header / Navigation -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1 class="app-title">হিসাবখাতা</h1>
+          <span class="app-tagline">স্মার্ট বাজেট ও খরচ ট্র্যাকার</span>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <!-- Currency selector -->
+        <div class="currency-selector" title="মুদ্রা পরিবর্তন করুন">
+          <select id="currencySelect" aria-label="কারেন্সি নির্বাচন">
+            <option value="BDT" selected>৳ BDT</option>
+            <option value="USD">$ USD</option>
+            <option value="EUR">€ EUR</option>
+            <option value="INR">₹ INR</option>
+          </select>
+        </div>
+
+        <!-- Theme toggle -->
+        <button id="themeToggleBtn" class="icon-btn" title="থিম পরিবর্তন (Dark / Light)" aria-label="থিম পরিবর্তন">
+          <svg id="themeIconDark" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          </svg>
+          <svg id="themeIconLight" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="hidden">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+
+        <!-- Primary Action -->
+        <button id="openAddModalBtn" class="btn btn-primary glow-button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>নতুন লেনদেন</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="app-main">
+    <div class="content-container">
+
+      <!-- Budget Alert Notification Banner -->
+      <section id="budgetAlertBanner" class="alert-banner hidden" role="alert">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+          <strong id="budgetAlertTitle">বাজেট সতর্কতা!</strong>
+          <p id="budgetAlertDesc">আপনি আপনার মাসিক বাজেটের ৯০% খরচ করে ফেলেছেন।</p>
+        </div>
+        <button id="dismissAlertBtn" class="alert-close" aria-label="বন্ধ করুন">&times;</button>
+      </section>
+
+      <!-- KPI Summary Cards Grid -->
+      <section class="kpi-grid" aria-label="আর্থিক সারসংক্ষেপ">
+        <!-- Net Balance Card -->
+        <div class="card kpi-card kpi-balance">
+          <div class="kpi-header">
+            <span class="kpi-label">অবশিষ্ট মোট ব্যালেন্স</span>
+            <div class="kpi-badge badge-neutral" id="balanceStatusBadge">স্বাভাবিক</div>
+          </div>
+          <div class="kpi-amount-wrapper">
+            <span class="kpi-currency" data-currency-symbol>৳</span>
+            <span class="kpi-amount" id="totalBalanceVal">0</span>
+          </div>
+          <div class="kpi-footer">
+            <span class="kpi-subtext" id="netSavingsRate">সঞ্চয় হার: ০%</span>
+          </div>
+        </div>
+
+        <!-- Total Income Card -->
+        <div class="card kpi-card kpi-income">
+          <div class="kpi-header">
+            <span class="kpi-label">মোট আয়</span>
+            <div class="kpi-icon-pill icon-pill-income">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                <polyline points="17 6 23 6 23 12"></polyline>
+              </svg>
+            </div>
+          </div>
+          <div class="kpi-amount-wrapper text-income">
+            <span class="kpi-currency" data-currency-symbol>৳</span>
+            <span class="kpi-amount" id="totalIncomeVal">0</span>
+          </div>
+          <div class="kpi-footer">
+            <span class="kpi-subtext" id="incomeCountText">০টি লেনদেন</span>
+          </div>
+        </div>
+
+        <!-- Total Expense Card -->
+        <div class="card kpi-card kpi-expense">
+          <div class="kpi-header">
+            <span class="kpi-label">মোট ব্যয়</span>
+            <div class="kpi-icon-pill icon-pill-expense">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
+                <polyline points="17 18 23 18 23 12"></polyline>
+              </svg>
+            </div>
+          </div>
+          <div class="kpi-amount-wrapper text-expense">
+            <span class="kpi-currency" data-currency-symbol>৳</span>
+            <span class="kpi-amount" id="totalExpenseVal">0</span>
+          </div>
+          <div class="kpi-footer">
+            <span class="kpi-subtext" id="expenseCountText">০টি লেনদেন</span>
+          </div>
+        </div>
+
+        <!-- Monthly Budget Card -->
+        <div class="card kpi-card kpi-budget">
+          <div class="kpi-header">
+            <span class="kpi-label">মাসিক বাজেট লক্ষ্য</span>
+            <button id="openBudgetModalBtn" class="btn-text-link" title="বাজেট লিমিট নির্ধারণ">বাজেট বদলান</button>
+          </div>
+          <div class="budget-stat-row">
+            <span class="budget-spent" id="budgetSpentVal">৳ ০</span>
+            <span class="budget-total" id="budgetLimitVal">/ ৳ ৩০,০০০</span>
+          </div>
+          <div class="progress-bar-container">
+            <div id="budgetProgressBar" class="progress-bar" style="width: 0%;"></div>
+          </div>
+          <div class="kpi-footer budget-footer">
+            <span id="budgetPercentText">০% ব্যয় হয়েছে</span>
+            <span id="budgetRemainingText" class="text-muted">অবশিষ্ট ৳ ৩০,০০০</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Charts & Visual Analytics Section -->
+      <section class="analytics-grid" aria-label="ভিজ্যুয়াল অ্যানালিটিক্স">
+        <!-- Category Expense Breakdown (Doughnut Chart) -->
+        <div class="card chart-card">
+          <div class="card-header-row">
+            <div>
+              <h2 class="section-title">ক্যাটাগরি অনুযায়ী খরচ</h2>
+              <p class="section-subtitle">কোন খাতে কত শতাংশ ব্যয় হয়েছে</p>
+            </div>
+            <span class="chart-badge" id="chartPeriodBadge">চলতি মাস</span>
+          </div>
+          <div class="chart-wrapper doughnut-chart-wrapper">
+            <canvas id="categoryChart"></canvas>
+            <div id="chartCenterOverlay" class="chart-center-overlay">
+              <span class="center-label">মোট খরচ</span>
+              <span class="center-val" id="chartCenterTotal">৳ ০</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monthly Trends (Bar / Comparison Chart) -->
+        <div class="card chart-card">
+          <div class="card-header-row">
+            <div>
+              <h2 class="section-title">আয় বনাম ব্যয়ের ট্রেন্ড</h2>
+              <p class="section-subtitle">গত ৬ মাসের তুলনামূলক পর্যালোচনা</p>
+            </div>
+            <div class="chart-legend-custom">
+              <span class="legend-item"><span class="legend-dot dot-income"></span>আয়</span>
+              <span class="legend-item"><span class="legend-dot dot-expense"></span>ব্যয়</span>
+            </div>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="trendsChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Transactions & History Section -->
+      <section class="card transactions-card" aria-label="লেনদেনের বিবরণ">
+        <!-- Controls & Filter Toolbar -->
+        <div class="transactions-toolbar">
+          <div class="toolbar-left">
+            <div class="search-box">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="searchInput" placeholder="খুঁজুন (নোট বা ক্যাটাগরি)..." aria-label="লেনদেন খুঁজুন">
+            </div>
+
+            <div class="filter-dropdowns">
+              <!-- Type Filter -->
+              <select id="typeFilter" aria-label="টাইপ ফিল্টার">
+                <option value="all">সব লেনদেন</option>
+                <option value="expense">শুধুমাত্র ব্যয়</option>
+                <option value="income">শুধুমাত্র আয়</option>
+              </select>
+
+              <!-- Category Filter -->
+              <select id="categoryFilter" aria-label="ক্যাটাগরি ফিল্টার">
+                <option value="all">সব ক্যাটাগরি</option>
+                <!-- Dynamic options loaded via JS -->
+              </select>
+
+              <!-- Date Period Filter -->
+              <select id="periodFilter" aria-label="সময়সীমা ফিল্টার">
+                <option value="this_month">চলতি মাস</option>
+                <option value="last_month">বিগত মাস</option>
+                <option value="this_year">চলতি বছর</option>
+                <option value="all_time" selected>সব সময়</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="toolbar-right">
+            <!-- Data Export Dropdown -->
+            <button id="exportCsvBtn" class="btn btn-outline" title="Excel / CSV ফরম্যাটে ডাউনলোড">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span>CSV এক্সপোর্ট</span>
+            </button>
+            <button id="resetDemoBtn" class="btn btn-ghost" title="ডেমো ডেটা রিলোড বা পরিষ্কার">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <path d="M3 3v5h5"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Transactions List -->
+        <div class="table-responsive">
+          <table class="transactions-table">
+            <thead>
+              <tr>
+                <th>ক্যাটাগরি ও বিবরণ</th>
+                <th>তারিখ</th>
+                <th>পেমেন্ট মাধ্যম</th>
+                <th>টাইপ</th>
+                <th class="text-right">পরিমাণ</th>
+                <th class="text-center">অ্যাকশন</th>
+              </tr>
+            </thead>
+            <tbody id="transactionsTableBody">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty State UI -->
+        <div id="emptyState" class="empty-state hidden">
+          <div class="empty-icon">💸</div>
+          <h3 class="empty-title">কোনো লেনদেন পাওয়া যায়নি</h3>
+          <p class="empty-desc">আপনার কোনো হিসাব এখনো যুক্ত করা হয়নি বা ফিল্টারে মিলছে না। নতুন লেনদেন যুক্ত করুন।</p>
+          <button class="btn btn-primary" onclick="document.getElementById('openAddModalBtn').click()">
+            + প্রথম লেনদেন যোগ করুন
+          </button>
+        </div>
+
+        <!-- Pagination or Table Footer -->
+        <div class="table-footer">
+          <span id="showingCountText" class="text-muted">০টি লেনদেন দেখানো হচ্ছে</span>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Add/Edit Transaction Modal -->
+  <div id="transactionModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modalTitle">নতুন লেনদেন যোগ করুন</h3>
+        <button id="closeModalBtn" class="modal-close-btn" aria-label="বন্ধ করুন">&times;</button>
+      </div>
+
+      <form id="transactionForm" novalidate>
+        <input type="hidden" id="editTransactionId" value="">
+
+        <!-- Transaction Type Switcher -->
+        <div class="type-switch-group">
+          <button type="button" class="type-tab-btn active" data-type="expense" id="typeExpenseBtn">
+            <span class="tab-indicator"></span>
+            <span class="tab-label">📉 ব্যয় (Expense)</span>
+          </button>
+          <button type="button" class="type-tab-btn" data-type="income" id="typeIncomeBtn">
+            <span class="tab-indicator"></span>
+            <span class="tab-label">📈 আয় (Income)</span>
+          </button>
+        </div>
+
+        <!-- Amount Input with Quick Chips -->
+        <div class="form-group">
+          <label for="amountInput" class="form-label">টাকার পরিমাণ <span class="required">*</span></label>
+          <div class="amount-input-wrapper">
+            <span class="amount-prefix" data-currency-symbol>৳</span>
+            <input type="number" id="amountInput" class="form-input amount-field" placeholder="0.00" min="1" step="any" required autofocus>
+          </div>
+          <!-- Quick Amount Chips -->
+          <div class="quick-chips">
+            <button type="button" class="chip-btn" data-chip="100">+১০০</button>
+            <button type="button" class="chip-btn" data-chip="500">+৫০০</button>
+            <button type="button" class="chip-btn" data-chip="1000">+১,০০০</button>
+            <button type="button" class="chip-btn" data-chip="5000">+৫,০০০</button>
+          </div>
+        </div>
+
+        <!-- Category Selector -->
+        <div class="form-group">
+          <label for="categoryInput" class="form-label">ক্যাটাগরি <span class="required">*</span></label>
+          <select id="categoryInput" class="form-input form-select" required>
+            <!-- Dynamic based on Expense/Income -->
+          </select>
+        </div>
+
+        <!-- Date & Payment Method row -->
+        <div class="form-row">
+          <div class="form-group col-half">
+            <label for="dateInput" class="form-label">তারিখ <span class="required">*</span></label>
+            <input type="date" id="dateInput" class="form-input" required>
+          </div>
+          <div class="form-group col-half">
+            <label for="paymentMethodInput" class="form-label">পেমেন্ট মাধ্যম</label>
+            <select id="paymentMethodInput" class="form-input form-select">
+              <option value="Cash">নগদ (Cash)</option>
+              <option value="bKash">বিকাশ (bKash)</option>
+              <option value="Nagad">নগদ (Nagad)</option>
+              <option value="Bank">ব্যাংক (Bank)</option>
+              <option value="Card">কার্ড (Card)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Note / Description -->
+        <div class="form-group">
+          <label for="noteInput" class="form-label">বিবরণ / নোট (ঐচ্ছিক)</label>
+          <input type="text" id="noteInput" class="form-input" placeholder="যেমন: বাজারের সদাই, মাসিক ঘরভাড়া...">
+        </div>
+
+        <!-- Modal Actions -->
+        <div class="modal-actions">
+          <button type="button" id="cancelModalBtn" class="btn btn-ghost">বাতিল</button>
+          <button type="submit" id="saveTransactionBtn" class="btn btn-primary">সংরক্ষণ করুন</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Budget Settings Modal -->
+  <div id="budgetModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>মাসিক বাজেট নির্ধারণ করুন</h3>
+        <button id="closeBudgetModalBtn" class="modal-close-btn" aria-label="বন্ধ করুন">&times;</button>
+      </div>
+
+      <form id="budgetForm">
+        <p class="modal-intro">প্রতি মাসে আপনি সর্বোচ্চ কত খরচ করতে চান তা নির্ধারণ করুন। খরচ ৮০% ছাড়ালে অ্যাপ আপনাকে সতর্ক করবে।</p>
+        <div class="form-group">
+          <label for="monthlyBudgetInput" class="form-label">মাসিক সর্বোচ্চ বাজেট লিমিট</label>
+          <div class="amount-input-wrapper">
+            <span class="amount-prefix" data-currency-symbol>৳</span>
+            <input type="number" id="monthlyBudgetInput" class="form-input amount-field" min="1000" step="500" value="30000" required>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="cancelBudgetBtn" class="btn btn-ghost">বাতিল</button>
+          <button type="submit" class="btn btn-primary">বাজেট সেভ করুন</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <p>হিসাবখাতা © 2026 — আপনার সমস্ত ডেটা ডিভাইসের লোকালস্টোরেজে সুরক্ষিত থাকে।</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
