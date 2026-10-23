@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: hishabkhata-expense-tracker
+    runtime: static
+    buildCommand: ""
+    staticPublishPath: .
+    pullRequestPreviewsEnabled: true
